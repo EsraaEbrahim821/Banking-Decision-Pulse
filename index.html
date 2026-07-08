@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking Decision Pulse — Skills Bank</title>
+<style>
+  :root{
+    --brand-dark:      #080828;
+    --brand-primary:   #4D88E8;
+    --brand-secondary: #40BDA9;
+    --brand-accent:    #FFBC3A;
+    --brand-light:     #EBF4FF;
+    --brand-white:     #FFFFFF;
+    --brand-grey:      #8B8FA6;
+    --brand-warning:   #F26A44;
+
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow-soft: 0 8px 24px rgba(8,8,40,0.08);
+    --shadow-lift: 0 14px 34px rgba(8,8,40,0.14);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    min-height:100%;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--brand-light) 0%, var(--brand-white) 55%);
+    color:var(--brand-dark);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  button{ font-family:inherit; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  .app-shell{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px 16px 40px;
+  }
+
+  .card{
+    width:100%;
+    max-width:520px;
+    background:var(--brand-white);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lift);
+    overflow:hidden;
+    border:1px solid rgba(8,8,40,0.06);
+  }
+
+  /* ---------- Header ---------- */
+  .app-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px 20px;
+    background:var(--brand-dark);
+  }
+  .logo-wrap{ display:flex; align-items:center; }
+  .logo-wrap svg{ height:28px; width:auto; display:block; }
+  .header-kicker{
+    color:var(--brand-light);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-weight:600;
+    opacity:0.75;
+    text-align:right;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-wrap{
+    padding:14px 20px 0;
+  }
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:600;
+    color:var(--brand-grey);
+    margin-bottom:8px;
+    letter-spacing:0.02em;
+  }
+  .progress-track{
+    height:6px;
+    border-radius:999px;
+    background:var(--brand-light);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+    transition:width 0.35s ease;
+    width:0%;
+  }
+
+  .score-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:700;
+    color:var(--brand-primary);
+    background:var(--brand-light);
+    padding:5px 12px;
+    border-radius:999px;
+    margin-top:10px;
+  }
+
+  /* ---------- Screen body ---------- */
+  .screen{
+    display:none;
+    padding:22px 22px 26px;
+    animation:fadeIn 0.28s ease;
+  }
+  .screen.active{ display:block; }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .eyebrow{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--brand-secondary);
+    margin:0 0 6px;
+  }
+
+  h1.screen-title{
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 6px;
+    color:var(--brand-dark);
+    font-weight:800;
+  }
+
+  .subtitle{
+    font-size:15px;
+    color:var(--brand-primary);
+    font-weight:600;
+    margin:0 0 14px;
+  }
+
+  p{ font-size:15px; line-height:1.6; color:#3B3B58; margin:0 0 12px; }
+
+  .lede{
+    font-size:16px;
+    color:var(--brand-dark);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+
+  /* ---------- Welcome screen ---------- */
+  .welcome-mark{
+    display:flex;
+    justify-content:center;
+    margin-bottom:22px;
+  }
+  .welcome-mark svg{ height:34px; width:auto; }
+
+  .training-kicker{
+    text-align:center;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--brand-grey);
+    margin-bottom:10px;
+  }
+
+  .welcome-body{ text-align:center; }
+  .welcome-body h1{
+    font-size:26px;
+    margin:0 0 8px;
+    color:var(--brand-dark);
+    font-weight:800;
+  }
+  .welcome-body .subtitle{ text-align:center; }
+  .welcome-body p{ text-align:left; }
+
+  /* ---------- Case card ---------- */
+  .case-card{
+    background:var(--brand-light);
+    border-left:4px solid var(--brand-primary);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+    margin:14px 0;
+  }
+  .case-card p{ color:var(--brand-dark); margin-bottom:0; }
+
+  .note-strip{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    background:#FFF6E6;
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+    margin-top:14px;
+  }
+  .note-strip .dot{
+    flex:0 0 auto;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--brand-accent);
+    margin-top:6px;
+  }
+  .note-strip p{ margin:0; font-size:13.5px; color:var(--brand-dark); font-weight:600; }
+
+  /* ---------- Options ---------- */
+  .options{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+
+  .option-btn{
+    text-align:left;
+    width:100%;
+    background:var(--brand-white);
+    border:2px solid var(--brand-light);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    font-size:14.5px;
+    line-height:1.5;
+    color:var(--brand-dark);
+    cursor:pointer;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    transition:border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .option-btn:hover:not(:disabled){
+    border-color:var(--brand-primary);
+    background:var(--brand-light);
+  }
+  .option-btn:active:not(:disabled){ transform:scale(0.99); }
+  .option-btn:focus-visible{
+    outline:3px solid var(--brand-primary);
+    outline-offset:2px;
+  }
+  .option-btn:disabled{ cursor:default; }
+
+  .option-letter{
+    flex:0 0 auto;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--brand-light);
+    color:var(--brand-primary);
+    font-weight:800;
+    font-size:12.5px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .option-btn.correct{
+    border-color:var(--brand-secondary);
+    background:rgba(64,189,169,0.10);
+  }
+  .option-btn.correct .option-letter{
+    background:var(--brand-secondary);
+    color:var(--brand-white);
+  }
+  .option-btn.incorrect{
+    border-color:var(--brand-warning);
+    background:rgba(242,106,68,0.08);
+  }
+  .option-btn.incorrect .option-letter{
+    background:var(--brand-warning);
+    color:var(--brand-white);
+  }
+  .option-btn.dimmed{ opacity:0.55; }
+
+  /* ---------- Feedback ---------- */
+  .feedback{
+    display:none;
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:var(--radius-md);
+    animation:fadeIn 0.25s ease;
+  }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:rgba(64,189,169,0.12); border:1px solid var(--brand-secondary); }
+  .feedback.bad{ background:rgba(242,106,68,0.10); border:1px solid var(--brand-warning); }
+  .feedback-title{ font-weight:800; font-size:14.5px; margin-bottom:4px; }
+  .feedback.good .feedback-title{ color:#1F7A6B; }
+  .feedback.bad .feedback-title{ color:#B24A2E; }
+  .feedback p{ margin:0; font-size:14px; color:var(--brand-dark); }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    padding:15px 20px;
+    border-radius:999px;
+    border:none;
+    font-size:15.5px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .btn:focus-visible{ outline:3px solid var(--brand-dark); outline-offset:3px; }
+  .btn-primary{
+    background:var(--brand-primary);
+    color:var(--brand-white);
+    box-shadow:0 10px 22px rgba(77,136,232,0.30);
+    margin-top:18px;
+  }
+  .btn-primary:hover{ background:#3E77D6; transform:translateY(-1px); }
+  .btn-primary:active{ transform:translateY(0); }
+  .btn-primary:disabled{
+    opacity:0.45; cursor:not-allowed; box-shadow:none; transform:none;
+  }
+  .btn-secondary{
+    background:var(--brand-white);
+    color:var(--brand-primary);
+    border:2px solid var(--brand-primary);
+    margin-top:10px;
+  }
+  .btn-secondary:hover{ background:var(--brand-light); }
+
+  /* ---------- Final screen ---------- */
+  .final-mark{ display:flex; justify-content:center; margin-bottom:16px; }
+  .final-mark svg{ height:30px; width:auto; }
+
+  .score-hero{
+    text-align:center;
+    background:linear-gradient(135deg, var(--brand-dark), #14144A);
+    border-radius:var(--radius-md);
+    padding:22px 18px;
+    color:var(--brand-white);
+    margin-bottom:16px;
+  }
+  .score-hero .score-num{ font-size:38px; font-weight:800; letter-spacing:-0.02em; }
+  .score-hero .score-den{ font-size:16px; opacity:0.7; font-weight:600; }
+  .score-hero .score-msg{ font-size:13.5px; margin-top:8px; opacity:0.9; }
+
+  .insight-line{
+    text-align:center;
+    font-size:15.5px;
+    font-weight:700;
+    color:var(--brand-dark);
+    background:var(--brand-light);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    margin-bottom:18px;
+  }
+
+  .summary-block{
+    border:1px solid var(--brand-light);
+    border-radius:var(--radius-md);
+    padding:4px 16px;
+    margin-bottom:18px;
+  }
+  .summary-row{
+    padding:12px 0;
+    border-bottom:1px solid var(--brand-light);
+  }
+  .summary-row:last-child{ border-bottom:none; }
+  .summary-row .summary-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    font-weight:700;
+    color:var(--brand-grey);
+    margin-bottom:4px;
+  }
+  .summary-row .summary-value{ font-size:14.5px; color:var(--brand-dark); font-weight:600; line-height:1.5; }
+
+  .takeaways{ list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .takeaways li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:14.5px; color:var(--brand-dark); font-weight:600;
+    background:var(--brand-white);
+    border:1px solid var(--brand-light);
+    border-radius:var(--radius-sm);
+    padding:10px 12px;
+  }
+  .takeaways .num{
+    flex:0 0 auto;
+    width:22px; height:22px; border-radius:50%;
+    background:var(--brand-secondary);
+    color:var(--brand-white);
+    font-size:12px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .debrief{
+    background:#FFF6E6;
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    margin-bottom:6px;
+  }
+  .debrief .debrief-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
+    font-weight:700; color:#8A6512; margin-bottom:4px;
+  }
+  .debrief p{ margin:0; font-weight:700; color:var(--brand-dark); font-size:14.5px; }
+
+  .final-actions{ display:flex; flex-direction:column; gap:0; margin-top:6px; }
+
+  @media (min-width:480px){
+    .app-header .header-kicker{ font-size:12px; }
+    .logo-wrap svg{ height:32px; }
+    .welcome-mark svg{ height:36px; }
+    .final-mark svg{ height:34px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="card">
+
+    <!-- ===== Persistent header (hidden on welcome + final) ===== -->
+    <header class="app-header" id="appHeader" style="display:none;">
+      <div class="logo-wrap" role="img" aria-label="Skills Bank Logo" id="headerLogo"></div>
+      <div class="header-kicker">Build Your<br>Decision-Making Muscles</div>
+    </header>
+
+    <div class="progress-wrap" id="progressWrap" style="display:none;">
+      <div class="progress-label">
+        <span id="progressStepLabel">Step 1 of 4</span>
+        <span class="score-pill" id="scorePill" style="display:none;">Score: 0/3</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- ===== SCREEN 1 — Welcome ===== -->
+    <section class="screen active" id="screen-welcome">
+      <div class="welcome-mark" role="img" aria-label="Skills Bank Logo" id="welcomeLogo"></div>
+      <div class="training-kicker" id="trainingKickerText"></div>
+      <div class="welcome-body">
+        <h1 id="activityTitleText"></h1>
+        <p class="subtitle" id="welcomeSubtitleText"></p>
+        <p id="welcomeBodyText"></p>
+      </div>
+      <button class="btn btn-primary" id="btnStart">Start Decision Pulse</button>
+    </section>
+
+    <!-- ===== SCREEN 2 — Read the case ===== -->
+    <section class="screen" id="screen-case">
+      <p class="eyebrow">Case study</p>
+      <h1 class="screen-title" id="caseTitleText"></h1>
+      <p id="caseInstructionText"></p>
+      <div class="case-card"><p id="caseText"></p></div>
+      <div class="note-strip">
+        <span class="dot"></span>
+        <p id="caseNoteText"></p>
+      </div>
+      <button class="btn btn-primary" id="btnToScreen3">Analyze the Problem</button>
+    </section>
+
+    <!-- ===== SCREEN 3 — Visible symptom ===== -->
+    <section class="screen" id="screen-symptom">
+      <p class="eyebrow" id="q1EyebrowText"></p>
+      <h1 class="screen-title" id="q1QuestionText"></h1>
+      <div class="options" id="q1Options"></div>
+      <div class="feedback" id="q1Feedback">
+        <div class="feedback-title" id="q1FeedbackTitle"></div>
+        <p id="q1FeedbackExplanation"></p>
+      </div>
+      <button class="btn btn-primary" id="q1Next" style="display:none;">Next</button>
+    </section>
+
+    <!-- ===== SCREEN 4 — Real problem ===== -->
+    <section class="screen" id="screen-real-problem">
+      <p class="eyebrow" id="q2EyebrowText"></p>
+      <h1 class="screen-title" id="q2QuestionText"></h1>
+      <div class="options" id="q2Options"></div>
+      <div class="feedback" id="q2Feedback">
+        <div class="feedback-title" id="q2FeedbackTitle"></div>
+        <p id="q2FeedbackExplanation"></p>
+      </div>
+      <button class="btn btn-primary" id="q2Next" style="display:none;">Choose the Decision</button>
+    </section>
+
+    <!-- ===== SCREEN 5 — Best decision ===== -->
+    <section class="screen" id="screen-decision">
+      <p class="eyebrow" id="q3EyebrowText"></p>
+      <h1 class="screen-title" id="q3QuestionText"></h1>
+      <div class="options" id="q3Options"></div>
+      <div class="feedback" id="q3Feedback">
+        <div class="feedback-title" id="q3FeedbackTitle"></div>
+        <p id="q3FeedbackExplanation"></p>
+      </div>
+      <button class="btn btn-primary" id="q3Next" style="display:none;">See Decision Insight</button>
+    </section>
+
+    <!-- ===== SCREEN 6 — Final insight ===== -->
+    <section class="screen" id="screen-final">
+      <div class="final-mark" role="img" aria-label="Skills Bank Logo" id="finalLogo"></div>
+      <h1 class="screen-title" style="text-align:center;" id="finalTitleText"></h1>
+
+      <div class="score-hero">
+        <div><span class="score-num" id="finalScoreNum">0</span><span class="score-den"> / 3</span></div>
+        <div class="score-msg" id="finalScoreMsg"></div>
+      </div>
+
+      <div class="insight-line" id="finalInsightText"></div>
+
+      <div class="summary-block">
+        <div class="summary-row">
+          <div class="summary-label">Visible symptom</div>
+          <div class="summary-value" id="summarySymptom"></div>
+        </div>
+        <div class="summary-row">
+          <div class="summary-label">Real problem</div>
+          <div class="summary-value" id="summaryProblem"></div>
+        </div>
+        <div class="summary-row">
+          <div class="summary-label">Best action</div>
+          <div class="summary-value" id="summaryAction"></div>
+        </div>
+      </div>
+
+      <ul class="takeaways" id="takeawaysList"></ul>
+
+      <div class="debrief">
+        <div class="debrief-label">Trainer debrief prompt</div>
+        <p id="debriefPromptText"></p>
+      </div>
+
+      <div class="final-actions">
+        <button class="btn btn-primary" id="btnRestart">Restart Activity</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     EDITABLE CONTENT — safe for a non-developer to update
+     ========================================================= */
+
+  var SKILLS_BANK_LOGO_SVG =
+    '<svg width="99" height="33" viewBox="0 0 99 33" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+    '<path d="M31.7043 0.694367V8.00083C31.7043 8.10685 31.6167 8.1952 31.5073 8.1952H28.3776C28.2682 8.1952 28.185 8.10685 28.185 8.00083V4.1709C28.185 4.15765 28.1719 4.1444 28.1543 4.1444H24.2805C24.1754 4.1444 24.0879 4.05605 24.0879 3.95003V0.694367C24.0879 0.588349 24.1754 0.5 24.2805 0.5H31.5073C31.6167 0.5 31.7043 0.588349 31.7043 0.694367Z" fill="currentColor"/>' +
+    '<path d="M31.7043 12.648V32.1775C31.7043 32.3542 31.5599 32.5 31.3848 32.5H0.315161C0.140072 32.5 0 32.3542 0 32.1775V0.822473C0 0.645775 0.140072 0.5 0.315161 0.5H19.8333C20.0084 0.5 20.1484 0.645775 20.1484 0.822473V12.3299H31.3848C31.5599 12.3299 31.7043 12.4713 31.7043 12.648Z" fill="currentColor"/>' +
+    '<path d="M40.9531 15.0249C39.173 15.0249 37.7416 14.7952 36.659 14.3358V12.264C37.2718 12.4937 37.9298 12.6807 38.6331 12.825C39.3393 12.9693 40.0411 13.0415 40.7386 13.0415C41.8329 13.0415 42.6543 12.9119 43.2029 12.6527C43.7516 12.3936 44.0259 11.8767 44.0259 11.1022C44.0259 10.6281 43.9121 10.2482 43.6844 9.96252C43.4568 9.67391 43.0789 9.42506 42.5507 9.21597C42.0255 9.00982 41.3003 8.79189 40.3753 8.56219C38.8957 8.17345 37.8569 7.68017 37.2587 7.08234C36.6604 6.48746 36.3613 5.66581 36.3613 4.6174C36.3613 3.39524 36.802 2.4396 37.6833 1.75048C38.5675 1.06136 39.885 0.716797 41.6359 0.716797C42.4326 0.716797 43.1825 0.774223 43.8858 0.889077C44.592 1.00393 45.1435 1.13351 45.5404 1.27781V3.34518C44.4607 2.92994 43.2657 2.72232 41.9554 2.72232C40.9312 2.72232 40.1345 2.85779 39.5655 3.12872C38.9935 3.40261 38.7075 3.89883 38.7075 4.6174C38.7075 5.03264 38.8082 5.36984 39.0096 5.629C39.208 5.88816 39.5523 6.1105 40.0426 6.29603C40.5358 6.48451 41.2157 6.69361 42.0824 6.92331C43.2059 7.20897 44.0784 7.55059 44.7 7.94816C45.3186 8.34279 45.752 8.8022 46 9.3264C46.248 9.85061 46.3721 10.4425 46.3721 11.1022C46.3721 12.3244 45.9241 13.283 45.0283 13.978C44.1324 14.6759 42.774 15.0249 40.9531 15.0249Z" fill="currentColor"/>' +
+    '<path d="M48.6348 14.8088V0.933594H50.9635V7.31239L56.8114 0.933594H59.5034L54.4434 6.53492L59.7179 14.8088H57.2404L52.9901 8.0236L50.9635 10.2191V14.8088H48.6348Z" fill="currentColor"/>' +
+    '<path d="M61.9805 14.8088V0.933594H64.3048V14.8088H61.9805Z" fill="currentColor"/>' +
+    '<path d="M66.998 14.8088V0.933594H69.3267V12.9976H76.3697V14.8088H66.998Z" fill="currentColor"/>' +
+    '<path d="M78.2031 14.8088V0.933594H80.5318V12.9976H87.5792V14.8088H78.2031Z" fill="currentColor"/>' +
+    '<path d="M93.5761 15.0249C91.796 15.0249 90.3661 14.7952 89.2864 14.3358V12.264C89.8963 12.4937 90.5543 12.6807 91.2605 12.825C91.9638 12.9693 92.6642 13.0415 93.3616 13.0415C94.4588 13.0415 95.2818 12.9119 95.8304 12.6527C96.3761 12.3936 96.6489 11.8767 96.6489 11.1022C96.6489 10.6281 96.5351 10.2482 96.3075 9.96252C96.0799 9.67391 95.7034 9.42506 95.1782 9.21597C94.65 9.00982 93.9234 8.79189 92.9983 8.56219C91.5188 8.17345 90.4799 7.68017 89.8817 7.08234C89.2835 6.48746 88.9844 5.66581 88.9844 4.6174C88.9844 3.39524 89.4265 2.4396 90.3107 1.75048C91.192 1.06136 92.5081 0.716797 94.2589 0.716797C95.0556 0.716797 95.807 0.774223 96.5132 0.889077C97.2165 1.00393 97.768 1.13351 98.1678 1.27781V3.34518C97.0852 2.92994 95.8887 2.72232 94.5785 2.72232C93.5542 2.72232 92.7576 2.85779 92.1885 3.12872C91.6195 3.40261 91.3349 3.89883 91.3349 4.6174C91.3349 5.03264 91.4342 5.36984 91.6326 5.629C91.834 5.88816 92.1798 6.1105 92.67 6.29603C93.1603 6.48451 93.8402 6.69361 94.7098 6.92331C95.8333 7.20897 96.7044 7.55059 97.323 7.94816C97.9417 8.34279 98.3765 8.8022 98.6274 9.3264C98.8755 9.85061 98.9995 10.4425 98.9995 11.1022C98.9995 12.3244 98.5516 13.283 97.6557 13.978C96.7569 14.6759 95.397 15.0249 93.5761 15.0249Z" fill="currentColor"/>' +
+    '<path fill-rule="evenodd" clip-rule="evenodd" d="M36.791 32.4963V18.6211H43.4488C44.8145 18.6211 45.8256 18.945 46.4822 19.5929C47.1359 20.2379 47.4627 21.1493 47.4627 22.3273C47.4627 23.0754 47.3139 23.7041 47.0162 24.2136C46.7157 24.7231 46.3173 25.1074 45.8213 25.3665C46.4895 25.5521 47.0192 25.8863 47.4102 26.3693C47.8012 26.8493 47.9967 27.5561 47.9967 28.4897C47.9967 29.8414 47.6378 30.8471 46.9199 31.5068C46.1992 32.1665 45.1428 32.4963 43.7508 32.4963H36.791ZM39.1153 24.5493H43.1293C43.9113 24.5493 44.4702 24.3652 44.8057 23.9971C45.1413 23.632 45.3091 23.1401 45.3091 22.5217C45.3091 21.8031 45.1384 21.2686 44.797 20.9182C44.4526 20.5648 43.8121 20.3881 42.8754 20.3881H39.1153V24.5493ZM39.1153 30.7779H43.2562C44.082 30.7779 44.6876 30.6012 45.0728 30.2478C45.4579 29.8974 45.6505 29.2833 45.6505 28.4057C45.6505 27.6901 45.4609 27.1556 45.0815 26.8022C44.7051 26.4518 44.0193 26.2765 43.0242 26.2765H39.1153V30.7779Z" fill="currentColor"/>' +
+    '<path fill-rule="evenodd" clip-rule="evenodd" d="M49.1074 32.4963L54.3601 18.6211H56.9646L62.1735 32.4963H59.7791L58.4134 28.9226H52.885L51.5193 32.4963H49.1074ZM53.2483 27.1114H58.0326L55.6383 20.7547L53.2483 27.1114Z" fill="currentColor"/>' +
+    '<path d="M64.4551 32.4963V18.6211H66.508L73.6779 28.8342V18.6211H75.9847V32.4963H73.9362L66.7838 22.3052V32.4963H64.4551Z" fill="currentColor"/>' +
+    '<path d="M78.6992 32.4963V18.6211H81.0235V24.9999L86.8759 18.6211H89.5635L84.5034 24.2224L89.778 32.4963H87.3005L83.0546 25.7111L81.0235 27.9066V32.4963H78.6992Z" fill="currentColor"/>' +
+    '</svg>';
+
+  var activityInfo = {
+    trainingTitle: "Build Your Decision-Making Muscles",
+    activityTitle: "Activity 1: Banking Decision Pulse",
+    briefing: "Read the case study and identify how you will collect the data using the learned tools.",
+    welcomeSubtitle: "Analyze the problem. Choose the best decision.",
+    welcomeBody: "A good decision starts with understanding the real problem. Read the case carefully. Look beyond the visible symptom. Then choose the action that solves the real issue.",
+    finalTitle: "Your Decision Pulse",
+    finalInsight: "Good decisions solve the real problem, not only the visible symptom.",
+    debriefPrompt: "What data would you collect before making the decision?"
+  };
+
+  var caseStudy = {
+    title: "Step 1 — Read the case",
+    instruction: "Read the customer case carefully.",
+    text: "A first-time customer opened a bank account online, but the mobile app still shows \u201CProfile pending verification.\u201D The branch tells the customer to call the hotline, and the hotline tells the customer to visit the branch. The customer is frustrated and says: \u201CI don\u2019t know who is responsible. I\u2019m starting to regret opening the account.\u201D",
+    note: "Do not rush to the solution. First, understand the problem."
+  };
+
+  var diagnosisQuestions = [
+    {
+      step: "Step 2 — Spot the visible symptom",
+      question: "What is the visible symptom in this case?",
+      buttonLabel: "Next",
+      feedbackCorrectTitle: "Good diagnosis.",
+      feedbackIncorrectTitle: "Close, but not the visible symptom.",
+      explanation: "The visible symptom is the pending verification message. The other issues are signs of a deeper problem.",
+      options: [
+        { text: "The app still shows \u201CProfile pending verification.\u201D", correct: true },
+        { text: "The customer is unsure which channel to contact.", correct: false },
+        { text: "The customer may stop using online banking.", correct: false }
+      ]
+    },
+    {
+      step: "Step 3 — Find the real problem",
+      question: "What is the real problem behind the case?",
+      buttonLabel: "Choose the Decision",
+      feedbackCorrectTitle: "Strong problem reading.",
+      feedbackIncorrectTitle: "Close, but this does not solve the real issue.",
+      explanation: "The deeper problem is ownership and clarity. The customer is being moved between channels without one clear owner.",
+      options: [
+        { text: "No one owns the case or gives a clear next step.", correct: true },
+        { text: "The app needs more time before the profile updates.", correct: false },
+        { text: "The customer needs a different digital service channel.", correct: false }
+      ]
+    }
+  ];
+
+  var decisionQuestion = {
+    step: "Step 4 — Choose the best decision",
+    question: "What is the best decision?",
+    buttonLabel: "See Decision Insight",
+    feedbackCorrectTitle: "Strong decision.",
+    feedbackIncorrectTitle: "Close, but this does not solve the real problem.",
+    options: [
+      { letter: "A", text: "Set a clear 48-hour wait and explain verification timing.", correct: false, feedback: "A only asks the customer to wait." },
+      { letter: "B", text: "Book a branch visit and confirm the required documents.", correct: false, feedback: "B sends the customer back into the same loop." },
+      { letter: "C", text: "Assign one owner, check verification, and update the customer.", correct: true, feedback: "Answer C is the strongest decision because it gives ownership, checks the missing step, and gives the customer a clear update." },
+      { letter: "D", text: "Offer another digital option that may fit the customer better.", correct: false, feedback: "D changes the product instead of solving the current problem." }
+    ]
+  };
+
+  var finalSummary = {
+    symptom: "Profile pending verification.",
+    problem: "No clear ownership and no clear next step.",
+    action: "Assign one owner, check the missing verification step, and update the customer."
+  };
+
+  var finalTakeaways = [
+    "Do not stop at the symptom.",
+    "Find the real problem.",
+    "Choose an action with ownership and clarity."
+  ];
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  var state = {
+    score: 0,
+    q1Answered: false,
+    q2Answered: false,
+    q3Answered: false
+  };
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function $(id){ return document.getElementById(id); }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function showScreen(id){
+    var screens = document.querySelectorAll(".screen");
+    for (var i = 0; i < screens.length; i++) { screens[i].classList.remove("active"); }
+    $(id).classList.add("active");
+
+    var isWelcomeOrFinal = (id === "screen-welcome" || id === "screen-final");
+    $("appHeader").style.display = isWelcomeOrFinal ? "none" : "flex";
+    $("progressWrap").style.display = isWelcomeOrFinal ? "none" : "block";
+
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function setProgress(percent, label, showScore){
+    $("progressFill").style.width = percent + "%";
+    $("progressStepLabel").textContent = label;
+    if (showScore) {
+      $("scorePill").style.display = "inline-flex";
+      $("scorePill").textContent = "Score: " + state.score + "/3";
+    } else {
+      $("scorePill").style.display = "none";
+    }
+  }
+
+  /* =========================================================
+     RENDER STATIC TEXT + LOGOS
+     ========================================================= */
+  function renderStaticContent(){
+    $("headerLogo").innerHTML = SKILLS_BANK_LOGO_SVG;
+    $("welcomeLogo").innerHTML = SKILLS_BANK_LOGO_SVG;
+    $("finalLogo").innerHTML = SKILLS_BANK_LOGO_SVG;
+
+    $("trainingKickerText").textContent = activityInfo.trainingTitle;
+    $("activityTitleText").textContent = "Banking Decision Pulse";
+    $("welcomeSubtitleText").textContent = activityInfo.welcomeSubtitle;
+    $("welcomeBodyText").textContent = activityInfo.welcomeBody;
+
+    $("caseTitleText").textContent = caseStudy.title;
+    $("caseInstructionText").textContent = caseStudy.instruction;
+    $("caseText").textContent = caseStudy.text;
+    $("caseNoteText").textContent = caseStudy.note;
+
+    $("finalTitleText").textContent = activityInfo.finalTitle;
+    $("finalInsightText").textContent = activityInfo.finalInsight;
+    $("summarySymptom").textContent = finalSummary.symptom;
+    $("summaryProblem").textContent = finalSummary.problem;
+    $("summaryAction").textContent = finalSummary.action;
+    $("debriefPromptText").textContent = activityInfo.debriefPrompt;
+
+    var list = $("takeawaysList");
+    list.innerHTML = "";
+    finalTakeaways.forEach(function(t, idx){
+      var li = document.createElement("li");
+      var num = document.createElement("span");
+      num.className = "num";
+      num.textContent = String(idx + 1);
+      var span = document.createElement("span");
+      span.textContent = t;
+      li.appendChild(num);
+      li.appendChild(span);
+      list.appendChild(li);
+    });
+  }
+
+  /* =========================================================
+     SCREEN 3 & 4 — DIAGNOSIS QUESTIONS (shuffled options)
+     ========================================================= */
+  function renderDiagnosisQuestion(qIndex, prefix, nextHandler){
+    var q = diagnosisQuestions[qIndex];
+    $(prefix + "EyebrowText").textContent = q.step;
+    $(prefix + "QuestionText").textContent = q.question;
+
+    var optionsWrap = $(prefix + "Options");
+    optionsWrap.innerHTML = "";
+    var shuffled = shuffle(q.options);
+    var letters = ["A", "B", "C"];
+
+    shuffled.forEach(function(opt, i){
+      var btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.setAttribute("type", "button");
+
+      var letterSpan = document.createElement("span");
+      letterSpan.className = "option-letter";
+      letterSpan.textContent = letters[i];
+
+      var textSpan = document.createElement("span");
+      textSpan.textContent = opt.text;
+
+      btn.appendChild(letterSpan);
+      btn.appendChild(textSpan);
+
+      btn.addEventListener("click", function(){
+        handleDiagnosisAnswer(prefix, q, opt, btn, optionsWrap, nextHandler);
+      });
+
+      optionsWrap.appendChild(btn);
+    });
+
+    $(prefix + "Feedback").classList.remove("show", "good", "bad");
+    $(prefix + "Next").style.display = "none";
+    $(prefix + "Next").textContent = q.buttonLabel;
+  }
+
+  function handleDiagnosisAnswer(prefix, q, chosenOpt, chosenBtn, optionsWrap, nextHandler){
+    var alreadyAnswered = (prefix === "q1" && state.q1Answered) || (prefix === "q2" && state.q2Answered);
+    if (alreadyAnswered) return;
+
+    if (prefix === "q1") { state.q1Answered = true; }
+    if (prefix === "q2") { state.q2Answered = true; }
+
+    var allBtns = optionsWrap.querySelectorAll(".option-btn");
+    allBtns.forEach(function(b){ b.disabled = true; });
+
+    if (chosenOpt.correct) {
+      chosenBtn.classList.add("correct");
+      state.score += 1;
+    } else {
+      chosenBtn.classList.add("incorrect");
+      allBtns.forEach(function(b){
+        if (b !== chosenBtn) { b.classList.add("dimmed"); }
+      });
+    }
+
+    // Always reveal the correct answer
+    var correctText = null;
+    for (var k = 0; k < q.options.length; k++){
+      if (q.options[k].correct) { correctText = q.options[k].text; }
+    }
+    allBtns.forEach(function(b){
+      var span = b.querySelectorAll("span")[1];
+      if (span && span.textContent === correctText) {
+        b.classList.add("correct");
+        b.classList.remove("dimmed");
+      }
+    });
+
+    var fb = $(prefix + "Feedback");
+    fb.classList.add("show");
+    if (chosenOpt.correct) {
+      fb.classList.add("good");
+      $(prefix + "FeedbackTitle").textContent = q.feedbackCorrectTitle;
+    } else {
+      fb.classList.add("bad");
+      $(prefix + "FeedbackTitle").textContent = q.feedbackIncorrectTitle;
+    }
+    $(prefix + "FeedbackExplanation").textContent = q.explanation;
+
+    $(prefix + "Next").style.display = "inline-flex";
+    updateScorePillsIfVisible();
+  }
+
+  function updateScorePillsIfVisible(){
+    if ($("scorePill").style.display !== "none") {
+      $("scorePill").textContent = "Score: " + state.score + "/3";
+    }
+  }
+
+  /* =========================================================
+     SCREEN 5 — DECISION QUESTION (fixed order, letters A-D)
+     ========================================================= */
+  function renderDecisionQuestion(){
+    var q = decisionQuestion;
+    $("q3EyebrowText").textContent = q.step;
+    $("q3QuestionText").textContent = q.question;
+
+    var optionsWrap = $("q3Options");
+    optionsWrap.innerHTML = "";
+
+    q.options.forEach(function(opt){
+      var btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.setAttribute("type", "button");
+
+      var letterSpan = document.createElement("span");
+      letterSpan.className = "option-letter";
+      letterSpan.textContent = opt.letter;
+
+      var textSpan = document.createElement("span");
+      textSpan.textContent = opt.text;
+
+      btn.appendChild(letterSpan);
+      btn.appendChild(textSpan);
+
+      btn.addEventListener("click", function(){
+        handleDecisionAnswer(opt, btn, optionsWrap);
+      });
+
+      optionsWrap.appendChild(btn);
+    });
+
+    $("q3Feedback").classList.remove("show", "good", "bad");
+    $("q3Next").style.display = "none";
+    $("q3Next").textContent = q.buttonLabel;
+  }
+
+  function handleDecisionAnswer(chosenOpt, chosenBtn, optionsWrap){
+    if (state.q3Answered) return;
+    state.q3Answered = true;
+
+    var allBtns = optionsWrap.querySelectorAll(".option-btn");
+    allBtns.forEach(function(b){ b.disabled = true; });
+
+    if (chosenOpt.correct) {
+      chosenBtn.classList.add("correct");
+      state.score += 1;
+    } else {
+      chosenBtn.classList.add("incorrect");
+      allBtns.forEach(function(b){
+        if (b !== chosenBtn) { b.classList.add("dimmed"); }
+      });
+    }
+
+    // Always reveal the correct answer (C)
+    decisionQuestion.options.forEach(function(opt, idx){
+      if (opt.correct) {
+        var btn = allBtns[idx];
+        btn.classList.add("correct");
+        btn.classList.remove("dimmed");
+      }
+    });
+
+    var fb = $("q3Feedback");
+    fb.classList.add("show");
+    if (chosenOpt.correct) {
+      fb.classList.add("good");
+      $("q3FeedbackTitle").textContent = decisionQuestion.feedbackCorrectTitle;
+    } else {
+      fb.classList.add("bad");
+      $("q3FeedbackTitle").textContent = decisionQuestion.feedbackIncorrectTitle;
+    }
+    $("q3FeedbackExplanation").textContent = chosenOpt.correct ? chosenOpt.feedback : chosenOpt.feedback;
+
+    $("q3Next").style.display = "inline-flex";
+    updateScorePillsIfVisible();
+  }
+
+  /* =========================================================
+     FINAL SCREEN
+     ========================================================= */
+  function renderFinalScreen(){
+    $("finalScoreNum").textContent = String(state.score);
+    var msg;
+    if (state.score === 3) {
+      msg = "Excellent. You diagnosed the problem and chose a strong decision.";
+    } else if (state.score === 2) {
+      msg = "Good work. You are building your decision-making muscle.";
+    } else {
+      msg = "Keep practicing. Strong decisions start with clear problem analysis.";
+    }
+    $("finalScoreMsg").textContent = msg;
+  }
+
+  /* =========================================================
+     RESET / RESTART
+     ========================================================= */
+  function resetActivity(){
+    state.score = 0;
+    state.q1Answered = false;
+    state.q2Answered = false;
+    state.q3Answered = false;
+    showScreen("screen-welcome");
+  }
+
+  /* =========================================================
+     NAVIGATION WIRING
+     ========================================================= */
+  $("btnStart").addEventListener("click", function(){
+    showScreen("screen-case");
+  });
+
+  $("btnToScreen3").addEventListener("click", function(){
+    renderDiagnosisQuestion(0, "q1", null);
+    setProgress(50, "Step 2 of 4", true);
+    updateScorePillsIfVisible();
+    showScreen("screen-symptom");
+  });
+
+  $("q1Next").addEventListener("click", function(){
+    renderDiagnosisQuestion(1, "q2", null);
+    setProgress(75, "Step 3 of 4", true);
+    showScreen("screen-real-problem");
+  });
+
+  $("q2Next").addEventListener("click", function(){
+    renderDecisionQuestion();
+    setProgress(100, "Step 4 of 4", true);
+    showScreen("screen-decision");
+  });
+
+  $("q3Next").addEventListener("click", function(){
+    setProgress(100, "Insight", true);
+    renderFinalScreen();
+    showScreen("screen-final");
+  });
+
+  $("btnRestart").addEventListener("click", resetActivity);
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  renderStaticContent();
+  setProgress(25, "Step 1 of 4", false);
+  showScreen("screen-welcome");
+
+})();
+</script>
+</body>
+</html>
